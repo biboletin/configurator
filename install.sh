@@ -15,6 +15,8 @@ ONLY_USERS=false
 ONLY_DATABASE=false
 ONLY_EMAIL=false
 ONLY_SSL=false
+ONLY_SSH=false
+ONLY_FAIL_2_BAN=false
 ONLY_FIREWALL=false
 ONLY_SECURITY=false
 ONLY_NETWORK=false
@@ -160,6 +162,8 @@ Options:
   --database        Setup only databases
   --email           Setup only email server
   --ssl             Setup only SSL certificates
+  --ssh             Setup only SSH
+  --fail2ban        Setup only fail2ban
   --firewall        Setup only firewall
   --security        Setup only security(file and directory permissions, sysctl hardening)
   --network         Setup only network
@@ -185,6 +189,8 @@ while [[ $# -gt 0 ]]; do
 		--database) ONLY_DATABASE=true; RUN_ALL=false; SELECT+=("database") ;;
 		--email) ONLY_EMAIL=true; RUN_ALL=false; SELECT+=("email") ;;
 		--ssl) ONLY_SSL=true; RUN_ALL=false; SELECT+=("ssl") ;;
+		--ssh) ONLY_SSH=true; RUN_ALL=false; SELECT+=("ssh") ;;
+		--fail2ban) ONLY_FAIL_2_BAN=true; RUN_ALL=false; SELECT+=("fail2ban") ;;
 		--firewall) ONLY_FIREWALL=true; RUN_ALL=false; SELECT+=("firewall") ;;
 		--security) ONLY_SECURITY=true; RUN_ALL=false; SELECT+=("security") ;;
 		--network) ONLY_NETWORK=true; RUN_ALL=false; SELECT+=("network") ;;
