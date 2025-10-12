@@ -17,4 +17,16 @@ check_internet() {
     fi
 }
 
+
+detect_os() {
+    [[ -r /etc/os-release ]] || die "❌ /etc/os-release missing. Cannot detect OS."
+    . /etc/os-release
+    OS_NAME="$NAME"
+    OS_ID="$ID"
+    OS_VER="$VERSION_ID"
+    info "✅ Detected OS: ${OS_NAME} (${OS_ID} ${OS_VER})"
+    [[ "$OS_ID" == "ubuntu" ]] || { warn "Non-Ubuntu OS detected"; confirm "Continue?" || die "Aborted"; }
+}
+
 check_internet || die "Setup aborted — no internet connection."
+detect_os || die "Setup aborted — OS detection failed."

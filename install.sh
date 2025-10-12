@@ -5,6 +5,7 @@ IFS=$'\n\t'
 # -----------------------------------------------------------------------------
 # Installer variables and defaults
 # -----------------------------------------------------------------------------
+ONLY_PRECHECK=false
 ONLY_APACHE=false
 ONLY_PHP=false
 ONLY_BACKUP=false
@@ -76,16 +77,6 @@ confirm() {
         [yY][eE][sS]|[yY]) return 0 ;;
         *) return 1 ;;
     esac
-}
-
-detect_os() {
-    [[ -r /etc/os-release ]] || die "/etc/os-release missing. Cannot detect OS."
-    . /etc/os-release
-    OS_NAME="$NAME"
-    OS_ID="$ID"
-    OS_VER="$VERSION_ID"
-    info "Detected OS: ${OS_NAME} (${OS_ID} ${OS_VER})"
-    [[ "$OS_ID" == "ubuntu" ]] || { warn "Non-Ubuntu OS detected"; confirm "Continue?" || die "Aborted"; }
 }
 
 load_env() {
@@ -181,6 +172,7 @@ while [[ $# -gt 0 ]]; do
     case "$1" in
         --dry-run) DRY_RUN=true ;;
         --yes) SKIP_CONFIRM=true ;;
+    	--precheck) ONLY_PRECHECK=true; RUN_ALL=false; SELECT+=("precheck") ;;
     	--apache) ONLY_APACHE=true; RUN_ALL=false; SELECT+=("apache") ;;
     	--php) ONLY_PHP=true; RUN_ALL=false; SELECT+=("php") ;;
     	--backup) ONLY_BACKUP=true; RUN_ALL=false; SELECT+=("backup") ;;
@@ -207,7 +199,6 @@ done
 # Main
 # -----------------------------------------------------------------------------
 require_root
-detect_os
 load_env
 discover_scripts
 
