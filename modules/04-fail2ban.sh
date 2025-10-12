@@ -2,9 +2,10 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-# Load environment and helpers
-source helpers.sh
-source ./config/env.sh
+# Load environment variables
+ENV_FILE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/config/env.sh"
+[[ -f "$ENV_FILE" ]] || { echo "Environment file not found: $ENV_FILE"; exit 1; }
+
 
 configure "Fail2Ban configuration"
 
@@ -117,7 +118,18 @@ enabled = true
 port    = http,https
 logpath = %(nginx_access_log)s %(apache_access_log)s"
 
-"apache-dos.conf|# Fail2Ban filter to block repeated web requests ending up with 404 HTTP status.
+"apache-common.conf|#
+# This supersedes the old and incorrect datepattern regex for older Apache2 instances to make
+# it working against Apache 2.4+ ones.
+#
+# Mariusz B. / mgeeky
+#
+
+[DEFAULT]
+datepattern = \[(%%d/%%b/%%Y:%%H:%%M:%%S %%z)\]"
+
+"apache-dos.conf|#
+# Fail2Ban filter to block repeated web requests ending up with 404 HTTP status.
 #
 # This matches classic forceful browsing attempts as well as automated crawlers.
 #
