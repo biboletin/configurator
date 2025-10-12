@@ -2,9 +2,30 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-# Load environment variables
-ENV_FILE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/config/env.sh"
-[[ -f "$ENV_FILE" ]] || { echo "Environment file not found: $ENV_FILE"; exit 1; }
+# Provide minimal logging helpers if not provided by caller
+if ! declare -f info >/dev/null 2>&1; then
+    info()  { printf '%s %s\n' "$(date --iso-8601=seconds)" "[INFO] $*"; }
+    warn()  { printf '%s %s\n' "$(date --iso-8601=seconds)" "[WARN] ⚠️ $*"; }
+    die()   { printf '%s %s\n' "$(date --iso-8601=seconds)" "[ERROR] ❌ $*"; exit 1; }
+fi
+
+# Ensure run as root (safe guard if run standalone)
+if [ "$(id -u)" -ne 0 ]; then
+    die "01-software.sh must be run as root."
+fi
+
+# Ensure env is loaded (install.sh should have already sourced it, but be robust)
+ENV_FILE="${ENV_FILE:-./config/env.sh}"
+if [[ -f "$ENV_FILE" ]]; then
+    # shellcheck disable=SC1090
+    . "$ENV_FILE"
+else
+    die "Environment file not found: ${ENV_FILE}"
+fi
+# Ensure Fail2Ban is installed
+if ! command -v fail2ban-server >/dev/null 2>&1; then
+	die "Fail2Ban is not installed. Please run the software installation module first."
+fi
 
 
 configure "Fail2Ban configuration"
