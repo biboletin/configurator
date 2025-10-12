@@ -39,12 +39,15 @@ RUN_ALL=true
 # -----------------------------------------------------------------------------
 mkdir -p "$(dirname "$LOGFILE")"
 touch "$LOGFILE"
-chmod 600 "$LOGFILE"
+chmod 777 "$LOGFILE"
+chown "$(whoami)":"$(id -gn $(whoami))" "$LOGFILE"
+
+# Redirect stdout and stderr to log file, while still printing to console
 exec > >(tee -a "$LOGFILE") 2>&1
 
 log()   { printf '%s %s\n' "$(date --iso-8601=seconds)" "$*" ; }
 info()  { log "[INFO] $*" ; }
-warn()  { log "[WARN] ⚠️ $*" ; }
+warn()  { log "[WARN] ⚠️  $*" ; }
 err()   { log "[ERROR] ❌ $*" ; }
 die()   { err "$*"; exit 1 ; }
 
@@ -225,5 +228,6 @@ done
 info "Running post-install tasks..."
 $DRY_RUN || systemctl daemon-reload || warn "systemctl daemon-reload failed"
 
-info "Installation finished successfully."
+info "✅ Installation finished successfully."
+warn "Delete the log file if everything is OK."
 info "Log file: $LOGFILE"

@@ -2,18 +2,20 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-# variables
-EXCLUDED_FILES=(
-	"20-iptables-4.sh"
-	"21-iptables-6.sh"
-	"22-fail2ban.sh"
-	"23-psad.sh"
-	"24-aide.sh"
-	"30-apache.sh"
-)
+# -----------------------------------------------------------------------------
+# Environment variables and defaults
+# -----------------------------------------------------------------------------
+
 
 # Check if required vars are presented and not empty
-REQUIRED_VARS=(USER GROUP HOME_DIR)
+REQUIRED_VARS=(
+	USER
+	GROUP
+	HOME_DIR
+	SERVER_IP
+	EXTERNAL_IP
+	INTERNAL_NETWORK
+)
 
 # main
 TODAY=$(date +"%Y_%m_%d")
