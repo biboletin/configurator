@@ -28,5 +28,27 @@ detect_os() {
     [[ "$OS_ID" == "ubuntu" ]] || { warn "Non-Ubuntu OS detected"; confirm "Continue?" || die "Aborted"; }
 }
 
+add_php_ppa() {
+	# --- Add PHP PPA (Ondřej Surý) safely ---
+    PHP_PPA="ppa:ondrej/php"
+    if ! grep -Rq "^deb .*$PHP_PPA" /etc/apt/sources.list.d/ /etc/apt/sources.list 2>/dev/null; then
+        info "Adding PHP PPA repository (${PHP_PPA})..."
+        $DRY_RUN || add-apt-repository -y "$PHP_PPA"
+    else
+        info "PHP PPA already present — skipping."
+    fi
+
+    # --- Refresh repositories after adding ---
+    info "Refreshing repositories..."
+    $DRY_RUN || apt-get update -qq
+
+    # --- Optional: Verify available PHP versions ---
+    if $VERBOSE; then
+        info "Available PHP packages:"
+        $DRY_RUN || apt-cache search '^php[0-9\.]+$' | awk '{print " -", $1}'
+    fi
+
+}
 check_internet || die "Setup aborted — no internet connection."
 detect_os || die "Setup aborted — OS detection failed."
+add_php_ppa || die "Setup aborted — failed to add PHP PPA."
