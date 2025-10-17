@@ -93,11 +93,11 @@ CLOUDFLARE_IP_LIST="$HOME/Documents/cloudflare-ips.txt"
 
 IS_ROUTER="false"
 # 192.168.0.1
-SERVER_IP=""
+SERVER_IP="191.168.1.108"
 # 1.2.3.4
-EXTERNAL_IP=""
+EXTERNAL_IP="94.158.26.30"
 # 192.168.0.0/24
-INTERNAL_NETWORK=""
+INTERNAL_NETWORK="192.168.1.0/24"
 # eno1
 MAIN_NETWORK_INTERFACE=$(route | grep '^default' | grep -o '[^ ]*$')
 SECOND_NETWORK_INTERFACE=""
@@ -196,7 +196,8 @@ EXTRAS=(
 	"apt-transport-https"
 	"apt-show-versions"
 	"ca-certificates"
-	"libpam-cracklib"
+	"libpam-pwquality"
+	"ca-certificates"
 )
 
 # -----------------------------------------------------------------------------
