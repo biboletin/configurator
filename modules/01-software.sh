@@ -98,7 +98,7 @@ apt-get update -y
 
 # Install missing packages
 info "Installing packages: ${MISSING[*]}"
-apt-get install -y "${MISSING[@]}"
+apt-get install "${MISSING[@]}" -y
 
 # Save the list of packages this run installed (for rollback)
 printf "%s\n" "${MISSING[@]}" > "${INSTALLED_LIST}"
@@ -106,6 +106,6 @@ chmod 600 "${INSTALLED_LIST}"
 info "Installed packages recorded to ${INSTALLED_LIST}"
 
 # optional: apt-get autoremove or clean (not removing by default)
-# apt-get autoremove -y
+ apt-get autoremove -y
 
 info "01-software.sh: completed successfully."
