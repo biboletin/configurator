@@ -32,12 +32,12 @@ HOME_DIR="/home/${USER}"
 # web
 WEB_ROOT="/var/www/html"
 # example
-HOST_NAME="example"
+HOST_NAME="example.com"
 # example.com
-DOMAIN_NAME="example.com"
+DOMAIN_NAME="${HOST_NAME}"
 MAIL_DOMAIN_NAME="mail.${DOMAIN_NAME}"
 # example.com
-SITE_NAME="example.com"
+SITE_NAME="${HOST_NAME}"
 SITE_ADDR="https://${SITE_NAME}"
 # Real email address, used for psad notifications
 EMAIL_ADDR="example@gmail.com"
