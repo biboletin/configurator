@@ -43,7 +43,7 @@ TODAY=${TODAY:-$(date +%F)}
 BACKUP_DIR="/var/backups/iptables"
 mkdir -p "$BACKUP_DIR"
 
-CLOUDFLARE_IP_LIST="${CLOUDFLARE_IP_LIST:-$HOME/Documents/cloudflare-ips.txt}"
+CLOUDFLARE_IP_LIST="${CLOUDFLARE_IP_LIST:-$HOME_DIR/Documents/cloudflare-ips.txt}"
 IS_ROUTER="${IS_ROUTER:-false}"
 SECOND_NETWORK_INTERFACE="${SECOND_NETWORK_INTERFACE:-}"
 
@@ -102,9 +102,12 @@ EOF
 -A OUTPUT -o ${MAIN_NETWORK_INTERFACE} -p tcp -m tcp --sport ${SSH} -m conntrack --ctstate ESTABLISHED -j ACCEPT
 EOF
 
+	# SSH brute-force protection using recent module
+	cat >> "$TMP_RULES" <<EOF
+# SSH brute-force protection
 -A INPUT -p tcp --dport ${SSH} -i ${MAIN_NETWORK_INTERFACE} -m state --state NEW -m recent --set
 -A INPUT -p tcp --dport ${SSH} -i ${MAIN_NETWORK_INTERFACE} -m state --state NEW -m recent --update --seconds 60 --hitcount 5 -j DROP
-
+EOF
 
     # Allow HTTP/HTTPS
     cat >> "$TMP_RULES" <<EOF
