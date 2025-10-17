@@ -4,6 +4,13 @@ IFS=$'\n\t'
 
 echo "Check for internet connection ..."
 
+# --- Minimal logging helpers ---
+info()  { printf '%s %s\n' "$(date --iso-8601=seconds)" "[INFO] $*"; }
+warn()  { printf '%s %s\n' "$(date --iso-8601=seconds)" "[WARN] ⚠️ $*"; }
+err()   { printf '%s %s\n' "$(date --iso-8601=seconds)" "[ERROR] ❌ $*"; }
+die()   { err "$*"; exit 1; }
+
+# --- Function to check internet connectivity ---
 check_internet() {
     local test_host="1.1.1.1"
     local timeout=3
@@ -17,7 +24,7 @@ check_internet() {
     fi
 }
 
-
+# --- Function to detect OS ---
 detect_os() {
     [[ -r /etc/os-release ]] || die "❌ /etc/os-release missing. Cannot detect OS."
     . /etc/os-release
@@ -28,6 +35,7 @@ detect_os() {
     [[ "$OS_ID" == "ubuntu" ]] || { warn "Non-Ubuntu OS detected"; confirm "Continue?" || die "Aborted"; }
 }
 
+# --- Function to add PHP PPA safely ---
 add_php_ppa() {
 	# --- Add PHP PPA (Ondřej Surý) safely ---
     PHP_PPA="ppa:ondrej/php"
@@ -49,6 +57,31 @@ add_php_ppa() {
     fi
 
 }
+
+# --- Function to create/update Cloudflare IP list ---
+update_cloudflare_ips() {
+    local output_file="${CLOUDFLARE_IP_LIST:-$HOME_DIR/Documents/cloudflare-ips.txt}"
+    local base_url="https://www.cloudflare.com/ips"
+
+    mkdir -p "$(dirname "$output_file")"
+
+    info "Fetching Cloudflare IP ranges..."
+    if $DRY_RUN; then
+        info "[DRY-RUN] Would fetch Cloudflare IPs and save to ${output_file}"
+        return 0
+    fi
+
+    {
+        curl -fsSL "${base_url}-v4" || warn "Failed to fetch IPv4 list"
+        curl -fsSL "${base_url}-v6" || warn "Failed to fetch IPv6 list"
+    } > "$output_file" || warn "Could not write to ${output_file}"
+
+    info "Saved Cloudflare IP list to ${output_file}"
+}
+
+
+# --- Execute checks ---
 check_internet || die "Setup aborted — no internet connection."
 detect_os || die "Setup aborted — OS detection failed."
 add_php_ppa || die "Setup aborted — failed to add PHP PPA."
+update_cloudflare_ips || die "Setup aborted — failed to update Cloudflare IP list."
