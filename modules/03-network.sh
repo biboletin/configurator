@@ -48,7 +48,7 @@ IS_ROUTER="${IS_ROUTER:-false}"
 SECOND_NETWORK_INTERFACE="${SECOND_NETWORK_INTERFACE:-}"
 
 # safe default for SERVER_IP
-SERVER_IP="${SERVER_IP:-127.0.0.1}"
+SERVER_IP="${SERVER_IP:-}"
 EXTERNAL_IP="${EXTERNAL_IP:-}"
 
 # helper wrapper to run or echo commands
@@ -87,8 +87,8 @@ EOF
     # Always accept loopback and established connections
     cat >> "$TMP_RULES" <<'EOF'
 # Allow loopback
--A INPUT -i lo -j ACCEPT
--A OUTPUT -o lo -j ACCEPT
+-A INPUT -i ${LOOPBACK} -j ACCEPT
+-A OUTPUT -o ${LOOPBACK} -j ACCEPT
 
 # Allow established/related
 -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
@@ -101,6 +101,10 @@ EOF
 -A INPUT -i ${MAIN_NETWORK_INTERFACE} -p tcp -m tcp --dport ${SSH} -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
 -A OUTPUT -o ${MAIN_NETWORK_INTERFACE} -p tcp -m tcp --sport ${SSH} -m conntrack --ctstate ESTABLISHED -j ACCEPT
 EOF
+
+-A INPUT -p tcp --dport ${SSH} -i ${MAIN_NETWORK_INTERFACE} -m state --state NEW -m recent --set
+-A INPUT -p tcp --dport ${SSH} -i ${MAIN_NETWORK_INTERFACE} -m state --state NEW -m recent --update --seconds 60 --hitcount 5 -j DROP
+
 
     # Allow HTTP/HTTPS
     cat >> "$TMP_RULES" <<EOF
